@@ -10,10 +10,10 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.dozingcatsoftware.bouncy"
+        applicationId "com.wigotecnologia.game.pinball"
         minSdkVersion 4
-        targetSdkVersion 37
-        versionCode 43
+        targetSdkVersion 36
+        versionCode 44
         versionName "1.16.0"
         multiDexEnabled true
     }

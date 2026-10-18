@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Vector Pinball</string>
+    <string name="app_name" translatable="false">Wigo Pinball</string>
 
     <string name="independent_flippers_pref_title">Flippers indépendants</string>
     <string name="independent_flippers_pref_summary_on">Un appui active le flipper du même côté de l\'écran</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Vector Pinball</string>
+    <string name="app_name" translatable="false">Wigo Pinball</string>
 
     <string name="independent_flippers_pref_title">Palang Tersendiri</string>
     <string name="independent_flippers_pref_summary_on">Tekanan akan mengaktifkan palang pada sisi yang sama di layar</string>

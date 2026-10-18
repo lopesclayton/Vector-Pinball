@@ -1,0 +1,21 @@
+Wigo Pinball - independent adaptation of Vector Pinball
+Package: com.wigotecnologia.game.pinball
+Version: 1.16.0 (44), target SDK 36
+License: GPLv3; original credits and third-party notices retained.
+No affiliation with or endorsement by the original authors is implied.
+
+Modifications: Wigo application name and package; privacy policy and support
+contact; single-use Android device-credential gate for external About links.
+The privacy policy remains accessible without authentication. No ads SDK added.
+
+Source: https://github.com/lopesclayton/Vector-Pinball
+Build with JDK 21, Android SDK 36 and the checked-in Gradle wrapper:
+  ./gradlew :app:copyAndroidNatives :app:bundleRelease
+Signing credentials are intentionally not included. Sign your own build with
+your own key. Dependencies are declared in the Gradle build files.
+
+Signed candidate SHA256:
+4C7C4BE094C335D74F18ED6656C9A4F7E76FDDC7A004B0FB1164DEA2ED376072
+This identifies the submission candidate, not Play approval.
+Validation: release startup on Android 16; debug parental-link checks.
+Full release gameplay and store submission validation remain pending.

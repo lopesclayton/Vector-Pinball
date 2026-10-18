@@ -46,7 +46,7 @@
     <string name="ramp_bonus_increased_message">Rampen Bonus erhöht</string>
     <string name="shoot_ramp_jackpot_message">Treffe Rampe für Jackpot</string>
     <string name="constellation_complete_message">%1$s vollendet</string>
-    <string name="app_name">Vector Pinball</string>
+    <string name="app_name">Wigo Pinball</string>
     <string name="independent_flippers_pref_title">Unabhängige Finger</string>
     <string name="independent_flippers_pref_summary_on">Berühung aktiviert die Finger auf der Seite des Bildschirms</string>
     <string name="independent_flippers_pref_summary_off">Berührung aktiviert alle Finger</string>

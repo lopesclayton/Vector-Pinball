@@ -2,12 +2,19 @@ package com.dozingcatsoftware.bouncy;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
+import android.net.Uri;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
+import android.widget.Toast;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
@@ -16,6 +23,9 @@ import android.view.WindowInsets;
 import android.widget.TextView;
 
 public class AboutActivity extends Activity {
+    private static final int CONFIRM_EXTERNAL_LINK = 7101;
+    private static final String PRIVACY_URL = "https://s3.sa-east-1.amazonaws.com/lupper.com.br/politica-privacidade-jogos.html";
+    private String pendingExternalUrl;
     /** Called when the activity is first created. */
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +49,16 @@ public class AboutActivity extends Activity {
             tableRulesText = null;
         }
         if (tableRulesText == null) tableRulesText = "";
-        String displayText = baseText.replace("[TABLE_RULES]", tableRulesText);
+        String displayText = getString(R.string.app_name) + "\n"
+                + getString(R.string.wigo_privacy_policy) + "\n"
+                + PRIVACY_URL + "\n\n"
+                + "Wigo Pinball is an independent adaptation of Vector Pinball.\n"
+                + "Support: contato@lupper.com.br\n"
+                + "Modified source: https://github.com/lopesclayton/Vector-Pinball\n\n"
+                + baseText.replace("[TABLE_RULES]", tableRulesText);
 
         TextView tv = findViewById(R.id.aboutTextView);
-        tv.setText(displayText);
+        setGuardedText(tv, displayText);
         // Padding based on screen.
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int padding = Math.min(metrics.widthPixels, metrics.heightPixels) / 25;
@@ -72,9 +88,85 @@ public class AboutActivity extends Activity {
         String prefix = newlinesForPaddingPixels(insets.top - tv.getPaddingTop(), lineHeight);
         String suffix = newlinesForPaddingPixels(insets.bottom - tv.getPaddingBottom(), lineHeight);
         // android.util.Log.i("About", "top: " + insets.top + ", bottom: " + insets.bottom + ", lineHeight: " + lineHeight + ", top padding: " + tv.getPaddingTop() + ", bottom padding: " + tv.getPaddingBottom());
-        tv.setText(prefix + tv.getText() + suffix);
+        setGuardedText(tv, prefix + tv.getText() + suffix);
 
         return WindowInsets.CONSUMED;
+    }
+
+    private void setGuardedText(TextView view, CharSequence text) {
+        // Disable layout auto-linking: it could recreate unguarded spans after inset updates.
+        view.setAutoLinkMask(0);
+        SpannableString linked = new SpannableString(text.toString());
+        Linkify.addLinks(linked, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+        for (URLSpan original : linked.getSpans(0, linked.length(), URLSpan.class)) {
+            int start = linked.getSpanStart(original);
+            int end = linked.getSpanEnd(original);
+            int flags = linked.getSpanFlags(original);
+            final String url = original.getURL();
+            linked.removeSpan(original);
+            linked.setSpan(new URLSpan(url) {
+                @Override public void onClick(View widget) {
+                    if (PRIVACY_URL.equals(url)) {
+                        openExternalUrl(url);
+                    } else {
+                        confirmExternalUrl(url);
+                    }
+                }
+            }, start, end, flags);
+        }
+        view.setText(linked);
+        view.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void confirmExternalUrl(String url) {
+        // Authorization is single-use and never restored across activity recreation.
+        if (pendingExternalUrl != null) return;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            showLinkBlocked();
+            return;
+        }
+        KeyguardManager keyguard = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        if (keyguard == null || !keyguard.isDeviceSecure()) {
+            showLinkBlocked();
+            return;
+        }
+        Intent credential = keyguard.createConfirmDeviceCredentialIntent(
+                "Parental control / Controle parental",
+                "A parent must unlock this device to open an external link.");
+        if (credential == null) {
+            showLinkBlocked();
+            return;
+        }
+        pendingExternalUrl = url;
+        try {
+            startActivityForResult(credential, CONFIRM_EXTERNAL_LINK);
+        } catch (android.content.ActivityNotFoundException | SecurityException unavailable) {
+            pendingExternalUrl = null;
+            showLinkBlocked();
+        }
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CONFIRM_EXTERNAL_LINK) {
+            String url = pendingExternalUrl;
+            pendingExternalUrl = null;
+            if (resultCode == RESULT_OK && url != null) openExternalUrl(url);
+        }
+    }
+
+    private void openExternalUrl(String url) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch (android.content.ActivityNotFoundException | SecurityException unavailable) {
+            Toast.makeText(this, "No app available to open this link.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void showLinkBlocked() {
+        Toast.makeText(this, "External links require a parent-controlled Android screen lock. / "
+                + "Links externos exigem bloqueio de tela Android controlado pelo responsável.",
+                Toast.LENGTH_LONG).show();
     }
 
     private static String newlinesForPaddingPixels(int px, float lineHeight) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name" translatable="false">Vector Pinball</string>
+	<string name="app_name" translatable="false">Wigo Pinball</string>
 
 	<string name="independent_flippers_pref_title">Dianas independientes</string>
 	<string name="independent_flippers_pref_summary_on">Un toque activa las dianas en el mismo lado de la pantalla</string>
